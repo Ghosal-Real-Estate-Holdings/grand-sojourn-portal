@@ -1,0 +1,1091 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Room Block Portal | The Grand Sojourn</title>
+<meta name="description" content="Look up which of your guests have reserved a room in your block at The Grand Sojourn.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:wght@400;500;600;700&family=Jost:wght@200;300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F5F2;
+    --card:#ffffff;
+    --ink:#4D4738;
+    --ink-soft:#908471;
+    --line:#C0AE94;
+    --accent:#65371F;
+    --accent-deep:#4D4738;
+    --accent-soft:#EFE6D8;
+    --good:#767A68;
+    --good-soft:#E8E9E3;
+    --danger:#A0522D;
+    --danger-soft:#F3E3D8;
+    --focus:#65371F;
+    --shadow: 0 1px 2px rgba(40,33,25,0.06), 0 8px 24px -12px rgba(40,33,25,0.18);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Jost', ui-sans-serif, system-ui, sans-serif;
+    font-weight:300;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  h1,h2,h3{
+    font-family:'Cormorant', ui-serif, Georgia, serif;
+    font-weight:600;
+    text-wrap:balance;
+    margin:0;
+    color:var(--ink);
+  }
+  a{color:var(--accent);}
+  button{font-family:inherit;}
+  .mono{font-family:'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric:tabular-nums;}
+
+  #app{max-width:1040px;margin:0 auto;padding:2.5rem 1.25rem 5rem;}
+  .eyebrow{
+    font-size:0.78rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    font-weight:600;
+  }
+  .topbar{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:1rem;
+    margin-bottom:2rem;
+    flex-wrap:wrap;
+  }
+  .topbar .venue-name{font-size:1.05rem;font-weight:600;font-family:'Cormorant',serif;}
+  .link-btn{
+    background:none;border:none;color:var(--ink-soft);
+    font-size:0.85rem;cursor:pointer;text-decoration:underline;
+    text-underline-offset:3px;padding:0.25rem 0;
+  }
+  .link-btn:hover{color:var(--accent);}
+
+  .center-wrap{
+    min-height:60vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    padding:2rem;
+  }
+  .login-card{width:100%;max-width:440px;}
+  .login-card h1{font-size:1.7rem;margin-bottom:0.4rem;}
+  .login-card p.sub{color:var(--ink-soft);font-size:0.95rem;margin:0 0 1.75rem;}
+
+  label{
+    display:block;font-size:0.8rem;font-weight:600;
+    color:var(--ink-soft);margin-bottom:0.4rem;
+    letter-spacing:0.02em;
+  }
+  input[type=text], input[type=password], input[type=date], textarea, select{
+    width:100%;
+    border:1px solid var(--line);
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:8px;
+    padding:0.65rem 0.8rem;
+    font-size:0.95rem;
+    font-family:inherit;
+  }
+  input:focus, textarea:focus, select:focus{
+    outline:2px solid var(--focus);
+    outline-offset:1px;
+  }
+  .code-input{
+    font-family:'IBM Plex Mono',monospace;
+    letter-spacing:0.08em;
+    font-size:1.05rem;
+    text-align:center;
+  }
+  .field{margin-bottom:1.1rem;}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    padding:0.7rem 1.2rem;
+    font-size:0.95rem;
+    font-weight:600;
+    cursor:pointer;
+    width:100%;
+  }
+  .btn:hover{background:var(--accent-deep);}
+  .btn:disabled{opacity:0.6;cursor:default;}
+  .btn-secondary{
+    background:transparent;
+    color:var(--accent);
+    border:1px solid var(--accent);
+  }
+  .btn-secondary:hover{background:var(--accent-soft);}
+  .btn-small{width:auto;padding:0.4rem 0.75rem;font-size:0.82rem;}
+  .btn-danger{background:var(--danger);}
+  .btn-danger:hover{background:var(--danger);filter:brightness(0.9);}
+
+  .error-msg{
+    background:var(--danger-soft);
+    color:var(--danger);
+    border-radius:8px;
+    padding:0.65rem 0.85rem;
+    font-size:0.85rem;
+    margin-bottom:1rem;
+  }
+  .status-msg{
+    background:var(--good-soft);
+    color:var(--good);
+    border-radius:8px;
+    padding:0.65rem 0.85rem;
+    font-size:0.85rem;
+    margin-bottom:1rem;
+  }
+
+  .pill{
+    display:inline-block;
+    background:var(--accent-soft);
+    color:var(--accent-deep);
+    border-radius:999px;
+    padding:0.25rem 0.75rem;
+    font-size:0.78rem;
+    font-weight:600;
+    letter-spacing:0.02em;
+  }
+
+  .hero-card{padding:2rem 2rem 1.75rem;margin-bottom:1.75rem;}
+  .hero-card .who{font-size:1.9rem;margin-bottom:0.6rem;}
+  .meta-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:1.25rem;
+    margin-top:1.25rem;
+    padding-top:1.25rem;
+    border-top:1px solid var(--line);
+  }
+  .meta-item .k{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-soft);font-weight:600;margin-bottom:0.3rem;}
+  .meta-item .v{font-size:1.05rem;font-weight:600;font-variant-numeric:tabular-nums;}
+
+  .section-title{
+    display:flex;align-items:baseline;justify-content:space-between;
+    margin-bottom:0.9rem;
+    gap:1rem;
+    flex-wrap:wrap;
+  }
+  .section-title h2{font-size:1.15rem;}
+  .section-title .count{color:var(--ink-soft);font-size:0.85rem;}
+
+  .empty-note{
+    color:var(--ink-soft);
+    font-size:0.9rem;
+    padding:1.25rem;
+    text-align:center;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:var(--card);
+  }
+
+  .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--card);}
+  table{width:100%;border-collapse:collapse;}
+  th{
+    text-align:left;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;
+    color:var(--ink-soft);font-weight:600;padding:0.7rem 0.7rem;
+    border-bottom:1px solid var(--line);
+    white-space:nowrap;
+  }
+  td{padding:0.5rem 0.7rem;border-bottom:1px solid var(--line);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  td input{padding:0.4rem 0.55rem;font-size:0.87rem;min-width:100px;}
+  td input.wide-input{min-width:170px;}
+  .reservation-table{min-width:760px;}
+  .reservation-table.editable{min-width:1080px;}
+  .room-name{font-weight:600;}
+  .room-num{color:var(--ink-soft);font-size:0.85rem;}
+
+  .admin-grid{display:grid;gap:1.5rem;}
+  .admin-toolbar{display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center;}
+  .admin-toolbar .spacer{flex:1;}
+  .dup-flag{color:var(--danger);font-size:0.72rem;font-weight:600;}
+
+  details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:0.9rem 1.1rem;}
+  details summary{cursor:pointer;font-weight:600;font-size:0.92rem;}
+  details[open] summary{margin-bottom:0.9rem;}
+  .import-help{font-size:0.83rem;color:var(--ink-soft);margin:0.5rem 0 0.8rem;line-height:1.55;}
+  .import-help code{background:var(--paper);padding:0.1rem 0.35rem;border-radius:4px;border:1px solid var(--line);}
+  textarea.import-box{min-height:130px;font-family:'IBM Plex Mono',monospace;font-size:0.78rem;resize:vertical;}
+
+  .group-card{margin-bottom:1.25rem;}
+  .group-card-head{
+    display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;
+    flex-wrap:wrap;margin-bottom:1.1rem;
+  }
+  .group-card-fields{display:flex;gap:0.9rem;flex-wrap:wrap;flex:1;min-width:260px;}
+  .group-card-fields .field{margin-bottom:0;min-width:170px;flex:1;}
+  .group-meta{color:var(--ink-soft);font-size:0.82rem;white-space:nowrap;padding-top:1.7rem;}
+
+  .footer-note{
+    text-align:center;color:var(--ink-soft);font-size:0.8rem;margin-top:2.5rem;
+  }
+  .updated-note{
+    color:var(--ink-soft);font-size:0.78rem;margin-top:0.9rem;
+  }
+
+  @media (max-width: 560px){
+    #app{padding:1.5rem 1rem 4rem;}
+    .hero-card{padding:1.4rem;}
+    .group-meta{padding-top:0;}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  // grand-sojourn.json lives right next to this file — this is a fully static, no-backend page.
+  // Guests read it directly. Publishing an admin edit downloads an updated copy of that file for
+  // whoever manages this repo to commit in its place (GitHub Pages redeploys automatically).
+  var DATA_URL = 'grand-sojourn.json';
+
+  var venueName = 'The Grand Sojourn';
+  var isAdminAuthed = false;
+  var currentView = 'login';
+  var loggedInGroup = null;
+  var adminDraft = null; // working copy of the venue's data while editing admin
+  var adminPasscode = null; // held in memory only while signed in, sent with each write
+  var lastError = { login: '', adminGate: '' };
+  var publishStatus = null; // {type:'info'|'error'|'success', text}
+  var loginLoading = false;
+  var adminGateLoading = false;
+  var armedRemoveGroup = null;
+  var importStatus = null;
+
+  function el(tag, attrs, children){
+    var e = document.createElement(tag);
+    attrs = attrs || {};
+    Object.keys(attrs).forEach(function(k){
+      if (k === 'html') { e.innerHTML = attrs[k]; }
+      else if (k.indexOf('on') === 0) { e.addEventListener(k.slice(2), attrs[k]); }
+      else if (attrs[k] !== null && attrs[k] !== undefined) { e.setAttribute(k, attrs[k]); }
+    });
+    (children || []).forEach(function(c){
+      if (c === null || c === undefined) return;
+      if (typeof c === 'string') e.appendChild(document.createTextNode(c));
+      else e.appendChild(c);
+    });
+    return e;
+  }
+
+  function pad2(n){ return n < 10 ? '0' + n : '' + n; }
+
+  function fmtDate(d){
+    if (!d) return '—';
+    var parts = String(d).split('-');
+    if (parts.length === 3){
+      var dt = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      if (!isNaN(dt.getTime())){
+        return dt.toLocaleDateString(undefined, { weekday:'short', year:'numeric', month:'short', day:'numeric' });
+      }
+    }
+    return d;
+  }
+  function fmtDateShort(d){
+    if (!d) return '—';
+    var parts = String(d).split('-');
+    if (parts.length === 3){
+      var dt = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      if (!isNaN(dt.getTime())){
+        return dt.toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
+      }
+    }
+    return d;
+  }
+
+  function fmtDateTime(iso){
+    if (!iso) return null;
+    var dt = new Date(iso);
+    if (isNaN(dt.getTime())) return null;
+    return dt.toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' }) +
+      ' at ' + dt.toLocaleTimeString(undefined, { hour:'numeric', minute:'2-digit' });
+  }
+
+  function normCode(s){ return String(s || '').trim().toUpperCase(); }
+
+  function fetchPublicState(){
+    return fetch(DATA_URL, { cache:'no-store' }).then(function(r){
+      if (!r.ok) throw new Error('lookup failed');
+      return r.json();
+    });
+  }
+
+  function fetchGroupByCode(code){
+    var c = normCode(code);
+    if (!c) return Promise.resolve(null);
+    return fetchPublicState().then(function(state){
+      var group = (state.groups || []).find(function(g){ return normCode(g.code) === c; });
+      if (!group) return null;
+      return {
+        venueName: state.venueName,
+        code: group.code,
+        name: group.name,
+        reservations: visibleReservations(group),
+        lastUpdated: state.lastUpdated || null
+      };
+    });
+  }
+
+  function fetchAdminState(passcodeValue){
+    return fetchPublicState().then(function(state){
+      if (passcodeValue !== state.adminPasscode) return null;
+      return state;
+    });
+  }
+
+  var HIDDEN_STATUS_RE = /cancel|no.?show|denied|void|declined/i;
+
+  function visibleReservations(group){
+    return (group.reservations || []).filter(function(r){ return !HIDDEN_STATUS_RE.test(r.status || ''); });
+  }
+
+  function sortedReservations(list){
+    return list.slice().sort(function(a,b){
+      var an = parseInt(a.roomNumber, 10), bn = parseInt(b.roomNumber, 10);
+      var aHas = !isNaN(an), bHas = !isNaN(bn);
+      if (aHas && bHas && an !== bn) return an - bn;
+      if (aHas !== bHas) return aHas ? -1 : 1;
+      return String(a.roomNumber||'').localeCompare(String(b.roomNumber||'')) ||
+             String(a.checkIn||'').localeCompare(String(b.checkIn||''));
+    });
+  }
+
+  function guestCountOf(r){
+    var a = Number(r.adults) || 0, c = Number(r.children) || 0;
+    if (a + c > 0) return { total: a + c, adults: a, children: c };
+    var raw = Number(r.guestCountRaw) || 0;
+    return { total: raw, adults: raw, children: 0 };
+  }
+
+  function guestLabel(r){
+    return r.guestName || r.guestEmail || 'Guest';
+  }
+
+  function summarize(list){
+    var rooms = list.length;
+    var guests = 0, minIn = null, maxOut = null;
+    list.forEach(function(r){
+      guests += guestCountOf(r).total;
+      if (r.checkIn && (minIn === null || r.checkIn < minIn)) minIn = r.checkIn;
+      if (r.checkOut && (maxOut === null || r.checkOut > maxOut)) maxOut = r.checkOut;
+    });
+    return { rooms: rooms, guests: guests, minIn: minIn, maxOut: maxOut };
+  }
+
+  // ---------- rendering ----------
+
+  function render(){
+    var app = document.getElementById('app');
+    app.innerHTML = '';
+    app.appendChild(buildTopbar());
+    if (currentView === 'login') app.appendChild(buildLogin());
+    else if (currentView === 'dashboard') app.appendChild(buildDashboard());
+    else if (currentView === 'adminGate') app.appendChild(buildAdminGate());
+    else if (currentView === 'admin') app.appendChild(buildAdmin());
+    app.appendChild(buildFooter());
+  }
+
+  function buildTopbar(){
+    var right = null;
+    if (currentView === 'dashboard'){
+      right = el('button', { class:'link-btn', onclick:function(){
+        loggedInGroup = null; currentView = 'login'; render();
+      }}, ['Log out']);
+    } else if (currentView === 'admin'){
+      right = el('button', { class:'link-btn', onclick:function(){
+        isAdminAuthed = false; adminDraft = null; adminPasscode = null; currentView = 'login'; render();
+      }}, ['Exit admin']);
+    }
+    return el('div', { class:'topbar' }, [
+      el('div', { class:'venue-name' }, [ venueName || 'Your Venue' ]),
+      right
+    ]);
+  }
+
+  function buildFooter(){
+    if (currentView === 'login'){
+      return el('div', { class:'footer-note' }, [
+        el('button', { class:'link-btn', onclick:function(){
+          lastError.adminGate = '';
+          currentView = 'adminGate'; render();
+        }}, ['Venue team login'])
+      ]);
+    }
+    return el('div', { class:'footer-note' }, []);
+  }
+
+  function buildLogin(){
+    var wrap = el('div', { class:'center-wrap' });
+    var card = el('div', { class:'card login-card' }, [
+      el('div', { class:'eyebrow' }, ['Couples']),
+      el('h1', {}, ['Find your room block']),
+      el('p', { class:'sub' }, ['Enter your event code to see which of your guests have reserved a room, and their dates.']),
+      lastError.login ? el('div', { class:'error-msg' }, [lastError.login]) : null,
+      el('div', { class:'field' }, [
+        el('label', { for:'code-in' }, ['Event code']),
+        el('input', { id:'code-in', type:'text', class:'code-input', placeholder:'e.g. g064130646801' })
+      ]),
+      el('button', { class:'btn', disabled: loginLoading ? '' : null, onclick:function(){
+        var input = document.getElementById('code-in');
+        var code = input.value;
+        loginLoading = true;
+        lastError.login = '';
+        render();
+        fetchGroupByCode(code).then(function(g){
+          loginLoading = false;
+          if (!g){
+            lastError.login = "We couldn't find a room block with that code. Double-check your confirmation, or contact the venue.";
+            render();
+            return;
+          }
+          if (g.venueName) venueName = g.venueName;
+          lastError.login = '';
+          loggedInGroup = g;
+          currentView = 'dashboard';
+          render();
+        }).catch(function(){
+          loginLoading = false;
+          lastError.login = "Something went wrong looking that up. Please try again.";
+          render();
+        });
+      }}, [loginLoading ? 'Checking…' : 'View my block'])
+    ]);
+    var input2 = card.querySelector('#code-in');
+    if (input2) input2.addEventListener('keydown', function(e){ if (e.key === 'Enter') card.querySelector('.btn').click(); });
+    wrap.appendChild(card);
+    return wrap;
+  }
+
+  function buildDashboard(){
+    var g = loggedInGroup;
+    var list = sortedReservations(visibleReservations(g));
+    var stats = summarize(list);
+    var wrap = el('div', {});
+
+    var hero = el('div', { class:'card hero-card' }, [
+      el('div', { class:'eyebrow' }, ['Your room block']),
+      el('div', { class:'who' }, [ el('h1', {}, [g.name || 'Your event']) ]),
+      (stats.minIn && stats.maxOut) ? el('span', { class:'pill' }, [fmtDateShort(stats.minIn) + ' – ' + fmtDateShort(stats.maxOut)]) : null,
+      el('div', { class:'meta-grid' }, [
+        el('div', { class:'meta-item' }, [ el('div', { class:'k' }, ['Rooms reserved']), el('div', { class:'v mono' }, [String(stats.rooms)]) ]),
+        el('div', { class:'meta-item' }, [ el('div', { class:'k' }, ['Guests']), el('div', { class:'v mono' }, [String(stats.guests)]) ]),
+        el('div', { class:'meta-item' }, [ el('div', { class:'k' }, ['Event code']), el('div', { class:'v mono' }, [g.code]) ])
+      ]),
+      fmtDateTime(g.lastUpdated) ? el('div', { class:'updated-note' }, ['Last updated ' + fmtDateTime(g.lastUpdated)]) : null
+    ]);
+    wrap.appendChild(hero);
+
+    var section = el('div', {});
+    section.appendChild(el('div', { class:'section-title' }, [
+      el('h2', {}, ['Who has booked']),
+      el('span', { class:'count' }, [list.length + (list.length === 1 ? ' room' : ' rooms')])
+    ]));
+
+    if (list.length === 0){
+      section.appendChild(el('div', { class:'empty-note' }, ['No guest rooms have been reserved in your block yet.']));
+    } else {
+      var tableWrap = el('div', { class:'table-wrap' });
+      var table = el('table', { class:'reservation-table' }, [
+        el('thead', {}, [ el('tr', {}, [
+          el('th', {}, ['Room']),
+          el('th', {}, ['Guest']),
+          el('th', {}, ['Check-in']),
+          el('th', {}, ['Check-out']),
+          el('th', {}, ['Guests'])
+        ])]),
+        el('tbody', {}, list.map(function(r){
+          var gc = guestCountOf(r);
+          var guestsText = gc.children > 0 ? (gc.adults + ' adult' + (gc.adults===1?'':'s') + ', ' + gc.children + ' child' + (gc.children===1?'':'ren')) : (gc.total + ' guest' + (gc.total===1?'':'s'));
+          return el('tr', {}, [
+            el('td', {}, [
+              el('div', { class:'room-name' }, [r.roomType || '—']),
+              r.roomNumber ? el('div', { class:'room-num' }, ['#' + r.roomNumber]) : null
+            ]),
+            el('td', {}, [guestLabel(r)]),
+            el('td', { class:'mono' }, [fmtDateShort(r.checkIn)]),
+            el('td', { class:'mono' }, [fmtDateShort(r.checkOut)]),
+            el('td', {}, [guestsText])
+          ]);
+        }))
+      ]);
+      tableWrap.appendChild(table);
+      section.appendChild(tableWrap);
+    }
+    wrap.appendChild(section);
+    return wrap;
+  }
+
+  function buildAdminGate(){
+    var wrap = el('div', { class:'center-wrap' });
+    var card = el('div', { class:'card login-card' }, [
+      el('div', { class:'eyebrow' }, ['Venue team']),
+      el('h1', {}, ['Admin sign-in']),
+      el('p', { class:'sub' }, ['Enter the venue passcode to manage room blocks.']),
+      lastError.adminGate ? el('div', { class:'error-msg' }, [lastError.adminGate]) : null,
+      el('div', { class:'field' }, [
+        el('label', { for:'pass-in' }, ['Passcode']),
+        el('input', { id:'pass-in', type:'password' })
+      ]),
+      el('button', { class:'btn', disabled: adminGateLoading ? '' : null, onclick:function(){
+        var v = document.getElementById('pass-in').value;
+        adminGateLoading = true;
+        lastError.adminGate = '';
+        render();
+        fetchAdminState(v).then(function(fetchedState){
+          adminGateLoading = false;
+          if (!fetchedState){
+            lastError.adminGate = 'Incorrect passcode.';
+            render();
+            return;
+          }
+          isAdminAuthed = true;
+          adminPasscode = v;
+          adminDraft = JSON.parse(JSON.stringify(fetchedState));
+          venueName = adminDraft.venueName || venueName;
+          armedRemoveGroup = null;
+          publishStatus = null;
+          importStatus = null;
+          lastError.adminGate = '';
+          currentView = 'admin';
+          render();
+        }).catch(function(){
+          adminGateLoading = false;
+          lastError.adminGate = "Couldn't reach the server. Please try again.";
+          render();
+        });
+      }}, [adminGateLoading ? 'Checking…' : 'Sign in']),
+      el('button', { class:'link-btn', style:'margin-top:0.9rem;', onclick:function(){
+        currentView = 'login'; render();
+      }}, ['← Back'])
+    ]);
+    var input = card.querySelector('#pass-in');
+    if (input) input.addEventListener('keydown', function(e){ if (e.key === 'Enter') card.querySelector('.btn').click(); });
+    wrap.appendChild(card);
+    return wrap;
+  }
+
+  function newReservation(){
+    return { id:'r'+Date.now()+Math.random().toString(36).slice(2,6), roomType:'', roomNumber:'', guestName:'', guestEmail:'', guestPhone:'', checkIn:'', checkOut:'', adults:1, children:0, guestCountRaw:0, status:'Confirmed' };
+  }
+  function newGroup(){
+    return { id:'g'+Date.now()+Math.random().toString(36).slice(2,6), code:'', name:'', reservations:[] };
+  }
+
+  function buildAdmin(){
+    var wrap = el('div', { class:'admin-grid' });
+
+    if (publishStatus){
+      wrap.appendChild(el('div', { class: publishStatus.type === 'error' ? 'error-msg' : 'status-msg' }, [publishStatus.text]));
+    }
+
+    // Settings card
+    var settings = el('div', { class:'card' }, [
+      el('h2', { style:'font-size:1.05rem;margin-bottom:1rem;' }, ['Settings']),
+      el('div', { class:'field' }, [
+        el('label', {}, ['Venue name']),
+        el('input', { type:'text', value: adminDraft.venueName, oninput:function(e){ adminDraft.venueName = e.target.value; } })
+      ]),
+      el('div', { class:'field', style:'margin-bottom:0;' }, [
+        el('label', {}, ['Admin passcode']),
+        el('input', { type:'text', value: adminDraft.adminPasscode, oninput:function(e){ adminDraft.adminPasscode = e.target.value; } })
+      ])
+    ]);
+    wrap.appendChild(settings);
+
+    // Import panel
+    var importDetails = el('details', { open:'open' }, [
+      el('summary', {}, ['Load your reservation export']),
+      el('p', { class:'import-help' }, [
+        'Upload the .xlsx file straight from your Group Room Reservation List export — ',
+        el('code', {}, ['Group Profile Code, Group Profile Name, Reservation Status, Room Type, Room Number, Primary Guest Email, Check-In/Out dates']),
+        ' and similar columns are recognized automatically, in whatever order they appear. Uploading the same event again updates it rather than duplicating it.'
+      ]),
+      el('div', { class:'field' }, [
+        el('label', { for:'xlsx-file-input' }, ['Excel file (.xlsx)']),
+        el('input', { type:'file', id:'xlsx-file-input', accept:'.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', onchange:function(e){
+          var file = e.target.files && e.target.files[0];
+          if (!file) return;
+          importStatus = { type:'info', text:'Reading ' + file.name + '…' };
+          render();
+          file.arrayBuffer().then(function(buf){
+            return xlsxFileToTsv(buf);
+          }).then(function(tsv){
+            applyImportText(tsv);
+          }).catch(function(err){
+            importStatus = { type:'error', text: (err && err.message) || ("Couldn't read " + file.name + ". Try the paste option below instead.") };
+            render();
+          });
+        }})
+      ]),
+      importStatus ? el('div', { class: importStatus.type === 'error' ? 'error-msg' : 'status-msg', style:'margin-top:0.4rem;' }, [importStatus.text]) : null,
+      el('details', { style:'margin-top:1.1rem;' }, [
+        el('summary', { style:'font-size:0.85rem;' }, ['Or paste rows instead']),
+        el('p', { class:'import-help' }, ['Useful if uploading the file isn\'t working — copy the header row plus data rows from the spreadsheet and paste them here.']),
+        el('textarea', { id:'import-box', class:'import-box', placeholder:'Paste the exported rows here…' }),
+        el('button', { class:'btn btn-secondary btn-small', style:'margin-top:0.7rem;', onclick:function(){
+          applyImportText(document.getElementById('import-box').value);
+        }}, ['Parse & merge'])
+      ])
+    ]);
+    wrap.appendChild(importDetails);
+
+    // Groups list
+    var codeCounts = {};
+    adminDraft.groups.forEach(function(g){ var c = normCode(g.code); if (c) codeCounts[c] = (codeCounts[c]||0)+1; });
+
+    var listHeader = el('div', { class:'section-title' }, [
+      el('h2', {}, ['Events']),
+      el('span', { class:'count' }, [adminDraft.groups.length + ' total'])
+    ]);
+    wrap.appendChild(listHeader);
+
+    wrap.appendChild(el('button', { class:'btn btn-secondary btn-small', style:'width:auto;', onclick:function(){
+      adminDraft.groups.unshift(newGroup());
+      render();
+    }}, ['+ Add event manually']));
+
+    adminDraft.groups.forEach(function(g, gIdx){
+      var dupe = normCode(g.code) && codeCounts[normCode(g.code)] > 1;
+      var card = el('div', { class:'card group-card' });
+      var head = el('div', { class:'group-card-head' }, [
+        el('div', { class:'group-card-fields' }, [
+          el('div', { class:'field' }, [
+            el('label', {}, ['Event name']),
+            el('input', { type:'text', class:'wide-input', value:g.name, oninput:function(e){ g.name = e.target.value; } })
+          ]),
+          el('div', { class:'field' }, [
+            el('label', {}, ['Event code']),
+            el('input', { type:'text', class:'mono', value:g.code, oninput:function(e){ g.code = e.target.value; render(); } }),
+            dupe ? el('div', { class:'dup-flag' }, ['duplicate code']) : null
+          ])
+        ]),
+        el('div', { class:'group-meta' }, [g.reservations.length + ' reservation' + (g.reservations.length===1?'':'s')]),
+        armedRemoveGroup === g.id
+          ? el('button', { class:'btn btn-danger btn-small', onclick:function(){
+              adminDraft.groups.splice(gIdx, 1); armedRemoveGroup = null; render();
+            }}, ['Confirm remove event'])
+          : el('button', { class:'link-btn', onclick:function(){ armedRemoveGroup = g.id; render(); } }, ['Remove event'])
+      ]);
+      card.appendChild(head);
+
+      var tableWrap = el('div', { class:'table-wrap' });
+      var table = el('table', { class:'reservation-table editable' }, [
+        el('thead', {}, [ el('tr', {}, [
+          el('th', {}, ['Room type']), el('th', {}, ['Room #']),
+          el('th', {}, ['Guest name']), el('th', {}, ['Guest email']), el('th', {}, ['Guest phone']),
+          el('th', {}, ['Check-in']), el('th', {}, ['Check-out']),
+          el('th', {}, ['Adults']), el('th', {}, ['Children']),
+          el('th', {}, ['Status']), el('th', {}, [''])
+        ])]),
+        el('tbody', {}, g.reservations.map(function(r, rIdx){
+          return el('tr', {}, [
+            el('td', {}, [ el('input', { type:'text', value:r.roomType, oninput:function(e){ r.roomType = e.target.value; } }) ]),
+            el('td', {}, [ el('input', { type:'text', value:r.roomNumber, style:'min-width:60px;', oninput:function(e){ r.roomNumber = e.target.value; } }) ]),
+            el('td', {}, [ el('input', { type:'text', value:r.guestName, oninput:function(e){ r.guestName = e.target.value; } }) ]),
+            el('td', {}, [ el('input', { type:'text', class:'wide-input', value:r.guestEmail, oninput:function(e){ r.guestEmail = e.target.value; } }) ]),
+            el('td', {}, [ el('input', { type:'text', value:r.guestPhone, oninput:function(e){ r.guestPhone = e.target.value; } }) ]),
+            el('td', {}, [ el('input', { type:'date', value:r.checkIn, oninput:function(e){ r.checkIn = e.target.value; } }) ]),
+            el('td', {}, [ el('input', { type:'date', value:r.checkOut, oninput:function(e){ r.checkOut = e.target.value; } }) ]),
+            el('td', {}, [ el('input', { type:'text', value:r.adults, style:'min-width:55px;', oninput:function(e){ r.adults = e.target.value; } }) ]),
+            el('td', {}, [ el('input', { type:'text', value:r.children, style:'min-width:55px;', oninput:function(e){ r.children = e.target.value; } }) ]),
+            el('td', {}, [ el('input', { type:'text', value:r.status, oninput:function(e){ r.status = e.target.value; } }) ]),
+            el('td', {}, [ el('button', { class:'link-btn', onclick:function(){ g.reservations.splice(rIdx, 1); render(); } }, ['Remove']) ])
+          ]);
+        }))
+      ]);
+      tableWrap.appendChild(table);
+      card.appendChild(tableWrap);
+
+      card.appendChild(el('button', { class:'btn btn-secondary btn-small', style:'width:auto;margin-top:0.9rem;', onclick:function(){
+        g.reservations.push(newReservation());
+        render();
+      }}, ['+ Add reservation']));
+
+      wrap.appendChild(card);
+    });
+
+    if (adminDraft.groups.length === 0){
+      wrap.appendChild(el('div', { class:'empty-note' }, ['No events yet. Paste your reservation export above, or add one manually.']));
+    }
+
+    // Save bar
+    var saveBar = el('div', { class:'card', style:'display:flex;align-items:center;gap:1rem;flex-wrap:wrap;' }, [
+      el('button', { class:'btn', style:'width:auto;', onclick:function(){ doPublish(); } }, ['Download updated file']),
+      el('span', { style:'color:var(--ink-soft);font-size:0.85rem;' }, ['Downloads grand-sojourn.json — upload it to the repo in place of the old one to make changes live.'])
+    ]);
+    wrap.appendChild(saveBar);
+
+    return wrap;
+  }
+
+  // ---------- import parsing ----------
+
+  function normHeaderKey(h){
+    return String(h || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  }
+
+  function splitDelim(line, delim){
+    if (delim === '\t') return line.split('\t').map(function(s){ return s.trim(); });
+    var out = []; var cur = ''; var inQ = false;
+    for (var i=0;i<line.length;i++){
+      var c = line[i];
+      if (c === '"'){ inQ = !inQ; continue; }
+      if (c === ',' && !inQ){ out.push(cur); cur=''; continue; }
+      cur += c;
+    }
+    out.push(cur);
+    return out.map(function(s){ return s.trim(); });
+  }
+
+  function normalizeDateStr(s){
+    s = String(s || '').trim();
+    if (!s) return '';
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+    var d = new Date(s);
+    if (!isNaN(d.getTime())) return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate());
+    return s;
+  }
+
+  var REQUIRED_HEADER_KEYS = ['groupprofilename'];
+  var HELPFUL_HEADER_KEYS = ['roomtype', 'roomnumber', 'reservationstatus'];
+
+  function parseImportText(text){
+    var rawLines = String(text || '').split(/\r?\n/);
+    if (rawLines.every(function(l){ return l.trim() === ''; })){
+      return { error: 'Paste the exported rows first — header row plus at least one reservation row.' };
+    }
+
+    var tabCount = 0, commaCount = 0;
+    rawLines.slice(0, 8).forEach(function(l){
+      tabCount += (l.match(/\t/g) || []).length;
+      commaCount += (l.match(/,/g) || []).length;
+    });
+    var delim = tabCount >= commaCount ? '\t' : ',';
+
+    var headerIdx = -1, colIndex = null;
+    for (var i = 0; i < rawLines.length; i++){
+      if (!rawLines[i].trim()) continue;
+      var cells = splitDelim(rawLines[i], delim).map(normHeaderKey);
+      var hasRequired = REQUIRED_HEADER_KEYS.every(function(k){ return cells.indexOf(k) !== -1; });
+      var helpfulCount = HELPFUL_HEADER_KEYS.filter(function(k){ return cells.indexOf(k) !== -1; }).length;
+      if (hasRequired && helpfulCount >= 1){
+        headerIdx = i;
+        colIndex = {};
+        cells.forEach(function(key, idx){ if (key) colIndex[key] = idx; });
+        break;
+      }
+    }
+    if (headerIdx === -1){
+      return { error: "Couldn't find the expected column headers (like \"Group Profile Name\" and \"Room Type\") in what was pasted. Make sure you copied the header row along with the data." };
+    }
+
+    function get(cells, key){
+      var idx = colIndex[key];
+      return idx === undefined ? '' : (cells[idx] || '').trim();
+    }
+
+    var lastCode = '', lastName = '';
+    var groupsByCode = {};
+    var order = [];
+    var totalRows = 0;
+
+    for (var j = headerIdx + 1; j < rawLines.length; j++){
+      var line = rawLines[j];
+      if (!line.trim()) break;
+      if (/^\s*filters\b/i.test(line)) break;
+
+      var cells2 = splitDelim(line, delim);
+      var rawCode = get(cells2, 'groupprofilecode');
+      var rawName = get(cells2, 'groupprofilename');
+      if (rawCode) lastCode = rawCode;
+      if (rawName) lastName = rawName;
+      var code = lastCode || lastName; // fall back to name as the key if no code column at all
+      var name = lastName || lastCode;
+      if (!code) continue;
+
+      var roomType = get(cells2, 'roomtype');
+      var roomNumber = get(cells2, 'roomnumber');
+      if (!roomType && !roomNumber && !get(cells2,'primaryguestemail')) continue; // skip stray blank-ish rows
+
+      var reservation = {
+        id: 'r' + Date.now() + Math.random().toString(36).slice(2, 6) + j,
+        roomType: roomType,
+        roomNumber: roomNumber,
+        guestName: get(cells2, 'primaryguestfullname'),
+        guestEmail: get(cells2, 'primaryguestemail'),
+        guestPhone: get(cells2, 'primaryguestmobilephonenumber'),
+        checkIn: normalizeDateStr(get(cells2, 'roomcheckindate') || get(cells2, 'checkindate')),
+        checkOut: normalizeDateStr(get(cells2, 'roomcheckoutdate') || get(cells2, 'checkoutdate')),
+        adults: parseInt(get(cells2, 'adultsperroomreservation'), 10) || 0,
+        children: parseInt(get(cells2, 'childrenperroomreservation'), 10) || 0,
+        guestCountRaw: parseInt(get(cells2, 'roomguestcount'), 10) || 0,
+        status: get(cells2, 'reservationstatus')
+      };
+
+      if (!groupsByCode[code]){
+        groupsByCode[code] = { code: code, name: name, reservations: [] };
+        order.push(code);
+      }
+      groupsByCode[code].reservations.push(reservation);
+      totalRows++;
+    }
+
+    if (order.length === 0){
+      return { error: 'No reservation rows were found after the header row.' };
+    }
+
+    return { groups: order.map(function(c){ return groupsByCode[c]; }), totalRows: totalRows };
+  }
+
+  function applyImportText(text){
+    var result = parseImportText(text);
+    if (result.error){ importStatus = { type:'error', text: result.error }; render(); return; }
+    var updated = 0, added = 0;
+    result.groups.forEach(function(pg){
+      var existing = adminDraft.groups.find(function(g){ return normCode(g.code) === normCode(pg.code); });
+      if (existing){
+        existing.name = pg.name;
+        existing.reservations = pg.reservations;
+        updated++;
+      } else {
+        adminDraft.groups.push({ id:'g'+Date.now()+Math.random().toString(36).slice(2,6), code:pg.code, name:pg.name, reservations:pg.reservations });
+        added++;
+      }
+    });
+    importStatus = { type:'success', text: 'Parsed ' + result.groups.length + ' event(s), ' + result.totalRows + ' reservation row(s). Updated ' + updated + ', added ' + added + '. Review below, then download the updated file.' };
+    render();
+  }
+
+  // ---------- reading .xlsx files directly (no library — unzip + parse in the browser) ----------
+
+  function colLettersToIndex(letters){
+    var idx = 0;
+    for (var i = 0; i < letters.length; i++){ idx = idx * 26 + (letters.charCodeAt(i) - 64); }
+    return idx - 1;
+  }
+
+  async function readZipEntries(buf){
+    var dv = new DataView(buf);
+    var len = buf.byteLength;
+    var eocdOffset = -1;
+    var scanStart = Math.max(0, len - 65557);
+    for (var i = len - 22; i >= scanStart; i--){
+      if (dv.getUint32(i, true) === 0x06054b50){ eocdOffset = i; break; }
+    }
+    if (eocdOffset === -1) throw new Error("That doesn't look like a valid .xlsx file.");
+    var cdEntries = dv.getUint16(eocdOffset + 10, true);
+    var cdOffset = dv.getUint32(eocdOffset + 16, true);
+    var entries = {};
+    var offset = cdOffset;
+    var decoder = new TextDecoder('utf-8');
+    for (var e = 0; e < cdEntries; e++){
+      if (dv.getUint32(offset, true) !== 0x02014b50) break;
+      var method = dv.getUint16(offset + 10, true);
+      var compSize = dv.getUint32(offset + 20, true);
+      var fnameLen = dv.getUint16(offset + 28, true);
+      var extraLen = dv.getUint16(offset + 30, true);
+      var commentLen = dv.getUint16(offset + 32, true);
+      var localHeaderOffset = dv.getUint32(offset + 42, true);
+      var nameBytes = new Uint8Array(buf, offset + 46, fnameLen);
+      var name = decoder.decode(nameBytes);
+      entries[name] = { method: method, compSize: compSize, localHeaderOffset: localHeaderOffset };
+      offset += 46 + fnameLen + extraLen + commentLen;
+    }
+    return entries;
+  }
+
+  async function readZipEntryBytes(buf, entry){
+    var dv = new DataView(buf);
+    var lo = entry.localHeaderOffset;
+    if (dv.getUint32(lo, true) !== 0x04034b50) throw new Error('That .xlsx file looks corrupted.');
+    var fnameLen = dv.getUint16(lo + 26, true);
+    var extraLen = dv.getUint16(lo + 28, true);
+    var dataStart = lo + 30 + fnameLen + extraLen;
+    var compBytes = new Uint8Array(buf, dataStart, entry.compSize);
+    if (entry.method === 0) return compBytes;
+    if (entry.method === 8){
+      if (typeof DecompressionStream === 'undefined'){
+        throw new Error("This browser can't unzip Excel files here — please use the paste option below instead.");
+      }
+      var stream = new Blob([compBytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+      var ab = await new Response(stream).arrayBuffer();
+      return new Uint8Array(ab);
+    }
+    throw new Error('This Excel file uses an unsupported compression method.');
+  }
+
+  async function readZipEntryText(buf, entries, name){
+    var entry = entries[name];
+    if (!entry) return null;
+    var bytes = await readZipEntryBytes(buf, entry);
+    return new TextDecoder('utf-8').decode(bytes);
+  }
+
+  function cellValue(c, sharedStrings){
+    var t = c.getAttribute('t');
+    if (t === 'inlineStr'){
+      var isNode = c.getElementsByTagName('is')[0];
+      return isNode ? isNode.textContent : '';
+    }
+    if (t === 's'){
+      var vNode0 = c.getElementsByTagName('v')[0];
+      var idx = vNode0 ? parseInt(vNode0.textContent, 10) : -1;
+      return (sharedStrings && idx >= 0 && sharedStrings[idx] !== undefined) ? sharedStrings[idx] : '';
+    }
+    var vNode = c.getElementsByTagName('v')[0];
+    if (vNode && vNode.textContent !== '') return vNode.textContent;
+    // Some export tools (e.g. Cloudbeds) write a HYPERLINK() formula with no cached value —
+    // the guest/reservation display text is the formula's second argument, so recover it from there.
+    var fNode = c.getElementsByTagName('f')[0];
+    if (fNode){
+      var m = /HYPERLINK\s*\(\s*[^,]+,\s*"((?:[^"]|"")*)"\s*\)/i.exec(fNode.textContent || '');
+      if (m) return m[1].replace(/""/g, '"');
+    }
+    return '';
+  }
+
+  function parseSheetToGrid(xmlText, sharedStrings){
+    var doc = new DOMParser().parseFromString(xmlText, 'application/xml');
+    if (doc.getElementsByTagName('parsererror').length){
+      throw new Error("Couldn't read the worksheet inside this Excel file.");
+    }
+    var rowNodes = doc.getElementsByTagName('row');
+    var maxCol = 0;
+    var rowsData = [];
+    for (var i = 0; i < rowNodes.length; i++){
+      var rowEl = rowNodes[i];
+      var rAttr = rowEl.getAttribute('r');
+      var rIdx = rAttr ? (parseInt(rAttr, 10) - 1) : i;
+      var cNodes = rowEl.getElementsByTagName('c');
+      var cellsMap = {};
+      for (var j = 0; j < cNodes.length; j++){
+        var c = cNodes[j];
+        var ref = c.getAttribute('r') || '';
+        var letters = ref.replace(/[0-9]/g, '');
+        var colIdx = letters ? colLettersToIndex(letters) : j;
+        if (colIdx > maxCol) maxCol = colIdx;
+        cellsMap[colIdx] = cellValue(c, sharedStrings);
+      }
+      rowsData.push({ idx: rIdx, cells: cellsMap });
+    }
+    var maxRow = 0;
+    rowsData.forEach(function(r){ if (r.idx > maxRow) maxRow = r.idx; });
+    var grid = [];
+    for (var rr = 0; rr <= maxRow; rr++) grid.push(new Array(maxCol + 1).fill(''));
+    rowsData.forEach(function(r){
+      Object.keys(r.cells).forEach(function(k){ grid[r.idx][Number(k)] = r.cells[k]; });
+    });
+    return grid;
+  }
+
+  async function xlsxFileToTsv(arrayBuffer){
+    var entries = await readZipEntries(arrayBuffer);
+
+    var sharedStrings = null;
+    if (entries['xl/sharedStrings.xml']){
+      var ssText = await readZipEntryText(arrayBuffer, entries, 'xl/sharedStrings.xml');
+      var ssDoc = new DOMParser().parseFromString(ssText, 'application/xml');
+      var siNodes = ssDoc.getElementsByTagName('si');
+      sharedStrings = [];
+      for (var i = 0; i < siNodes.length; i++){
+        var texts = siNodes[i].getElementsByTagName('t');
+        var s = '';
+        for (var k = 0; k < texts.length; k++) s += texts[k].textContent;
+        sharedStrings.push(s);
+      }
+    }
+
+    var sheetPath = null;
+    try {
+      var wbText = await readZipEntryText(arrayBuffer, entries, 'xl/workbook.xml');
+      var relsText = await readZipEntryText(arrayBuffer, entries, 'xl/_rels/workbook.xml.rels');
+      if (wbText && relsText){
+        var wbDoc = new DOMParser().parseFromString(wbText, 'application/xml');
+        var firstSheet = wbDoc.getElementsByTagName('sheet')[0];
+        var rid = firstSheet ? (firstSheet.getAttribute('r:id') || firstSheet.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'id')) : null;
+        if (rid){
+          var relsDoc = new DOMParser().parseFromString(relsText, 'application/xml');
+          var relNodes = relsDoc.getElementsByTagName('Relationship');
+          for (var r = 0; r < relNodes.length; r++){
+            if (relNodes[r].getAttribute('Id') === rid){
+              var target = relNodes[r].getAttribute('Target');
+              sheetPath = target.indexOf('/') === 0 ? target.slice(1) : ('xl/' + target.replace(/^\.?\//, ''));
+              break;
+            }
+          }
+        }
+      }
+    } catch (e) { /* fall through to default lookup below */ }
+
+    if (!sheetPath || !entries[sheetPath]){
+      var candidates = Object.keys(entries).filter(function(n){ return /^xl\/worksheets\/sheet\d+\.xml$/.test(n); }).sort();
+      sheetPath = candidates[0] || 'xl/worksheets/sheet1.xml';
+    }
+    if (!entries[sheetPath]) throw new Error("Couldn't find a worksheet inside this Excel file.");
+
+    var sheetText = await readZipEntryText(arrayBuffer, entries, sheetPath);
+    var grid = parseSheetToGrid(sheetText, sharedStrings);
+    return grid.map(function(row){ return row.join('\t'); }).join('\n');
+  }
+
+  // ---------- publish ----------
+
+  function downloadJson(data, filename){
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 30000);
+  }
+
+  function doPublish(){
+    var payload = {
+      venueName: adminDraft.venueName,
+      adminPasscode: adminDraft.adminPasscode,
+      groups: adminDraft.groups,
+      lastUpdated: new Date().toISOString()
+    };
+    try {
+      downloadJson(payload, 'grand-sojourn.json');
+      venueName = payload.venueName || venueName;
+      publishStatus = { type:'success', text:'Downloaded grand-sojourn.json — upload it to the repo (replacing the old one) to make these changes live for couples.' };
+    } catch (e){
+      publishStatus = { type:'error', text:"Couldn't prepare the download. Please try again." };
+    }
+    render();
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
